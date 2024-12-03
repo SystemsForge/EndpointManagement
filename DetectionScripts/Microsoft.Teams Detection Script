@@ -1,0 +1,11 @@
+# Run the winget list command to check if Microsoft.Teams is installed
+$wingetOutput = winget list --id "Microsoft.Teams" --exact --accept-source-agreements 2>&1
+
+# Check the output for Microsoft.Teams specifically
+if ($wingetOutput -match "Microsoft.Teams") {
+    # Exit with code 0 if Microsoft.Teams is detected
+    echo 0
+} else {
+    # Exit with code 1 if Microsoft.Teams is not detected
+    echo 1
+}
