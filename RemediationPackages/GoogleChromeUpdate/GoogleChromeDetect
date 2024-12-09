@@ -1,0 +1,31 @@
+# Detection Script for Intune Proactive Remediation
+# Checks Chrome version using Get-Package and compares it to a minimum version
+
+$MinVersion = "131.0.6778.109"
+
+# Function to get Chrome version using Get-Package
+function Get-ChromeVersion {
+    try {
+        $ChromePackage = Get-Package -Name "Google Chrome" -ErrorAction Stop
+        $Version = $ChromePackage.Version
+        return $Version
+    } catch {
+        Write-Host "Chrome is not installed or could not be detected."
+        return $null
+    }
+}
+
+# Main detection logic
+$InstalledVersion = Get-ChromeVersion
+if (-not $InstalledVersion) {
+    Write-Host "Chrome is not installed."
+    exit 0
+}
+
+if ([version]$InstalledVersion -lt [version]$MinVersion) {
+    Write-Host "Chrome version $InstalledVersion is less than the required version $MinVersion."
+    exit 1
+} else {
+    Write-Host "Chrome version $InstalledVersion meets the requirement."
+    exit 0
+}
