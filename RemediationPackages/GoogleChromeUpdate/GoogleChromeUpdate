@@ -1,0 +1,8 @@
+# Ensure the log folder exists
+$LogFolder = "C:\lab\logs"
+if (-not (Test-Path $LogFolder)) {
+    New-Item -ItemType Directory -Path $LogFolder | Out-Null
+}
+
+# Run the winget command with logging
+winget upgrade Google.Chrome --exact --accept-source-agreements --accept-package-agreements --silent --log "$LogFolder\chrome_upgrade.txt"
