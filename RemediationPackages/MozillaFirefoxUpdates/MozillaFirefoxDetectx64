@@ -1,4 +1,4 @@
- # Define log file path (overwrite log file each time)
+# Define log file path (overwrite log file each time)
 $LogDir = "C:\lab\logs"
 $LogFile = "$LogDir\firefox_detection.log"
 
