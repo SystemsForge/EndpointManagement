@@ -1,0 +1,46 @@
+# Define log file path (overwrites each time)
+$LogDir = "C:\lab\logs"
+$LogFile = "$LogDir\winget_firefox_update.log"
+
+# Ensure the log directory exists
+if (-not (Test-Path -Path $LogDir)) {
+    New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
+}
+
+# Log a message function
+function Log-Message {
+    param (
+        [string]$Message
+    )
+    $Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $FullMessage = "$Timestamp - $Message"
+    $FullMessage | Out-File -Append -FilePath $LogFile
+}
+
+# Get path for Winget executable
+$Winget = ((Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Object { 
+    ($_.FullName -match 'C:\\Program Files\\WindowsApps\\Microsoft.DesktopAppInstaller_' -and $_.Name -eq 'winget.exe') 
+} | Sort-Object FullName -Descending | Select-Object -First 1).FullName)
+
+# Log Winget path detection
+if (-not $Winget) {
+    Log-Message "Winget executable not found. Exiting script."
+    exit 1
+} else {
+    Log-Message "Winget executable found at: $Winget"
+}
+
+# WinGet version
+Log-Message "Retrieving Winget version information..."
+& "$Winget" --info 2>&1 | Out-File -Append -FilePath $LogFile
+
+# Update source
+Log-Message "Updating Winget sources..."
+& "$Winget" source update 2>&1 | Out-File -Append -FilePath $LogFile
+
+# Run the upgrade command
+Log-Message "Running upgrade for Mozilla Firefox (x64 en-US)..."
+& "$Winget" upgrade --name "Mozilla Firefox (x64 en-US)" --silent --accept-source-agreements --accept-package-agreements 2>&1 | Out-File -Append -FilePath $LogFile
+
+# Completion log
+Log-Message "Script execution completed."
