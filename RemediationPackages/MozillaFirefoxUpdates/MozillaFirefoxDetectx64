@@ -23,46 +23,53 @@ function Log-Message {
     $FullMessage | Out-File -Append -FilePath $LogFile
 }
 
-# Start logging
-Log-Message "Starting Firefox detection script."
-
-# Define the minimum required version
-$MinVersion = "133.0.3"
-Log-Message "Minimum required version is set to $MinVersion."
-
-# Function to get Firefox version using Get-Package
-function Get-FirefoxVersion {
-    Log-Message "Attempting to retrieve Firefox version using Get-Package..."
-    try {
-        # Retrieve the matching package
-        $FirefoxPackage = Get-Package -Name "Mozilla Firefox (x64 en-US)" -ErrorAction Stop
-        $Version = $FirefoxPackage.Version
-        Log-Message "Retrieved Firefox version: $Version"
-        return $Version
-    } catch {
-        Log-Message "Error: Firefox is not installed or could not be detected. Details: $_"
-        return $null
-    }
-}
-
-# Main detection logic
-$InstalledVersion = Get-FirefoxVersion
-
-if (-not $InstalledVersion) {
-    Log-Message "No Firefox installation detected. Exiting with status code 0."
-    Exit 0
-}
-
+# Wrap the entire script in a global try/catch block
 try {
-    Log-Message "Comparing installed version: $InstalledVersion with minimum required version: $MinVersion."
-    if ([version]$InstalledVersion -lt [version]$MinVersion) {
-        Log-Message "Outdated version detected: $InstalledVersion is less than the required version $MinVersion."
-        Exit 1
-    } else {
-        Log-Message "Installed version $InstalledVersion meets the minimum requirement."
-        Echo 0
+    # Start logging
+    Log-Message "Starting Firefox detection script."
+
+    # Define the minimum required version
+    $MinVersion = "133.0.3"
+    Log-Message "Minimum required version is set to $MinVersion."
+
+    # Function to get Firefox version using Get-Package
+    function Get-FirefoxVersion {
+        Log-Message "Attempting to retrieve Firefox version using Get-Package..."
+        try {
+            # Retrieve the matching package
+            $FirefoxPackage = Get-Package -Name "Mozilla Firefox (x64 en-US)" -ErrorAction Stop
+            $Version = $FirefoxPackage.Version
+            Log-Message "Retrieved Firefox version: $Version"
+            return $Version
+        } catch {
+            Log-Message "Error: Firefox is not installed or could not be detected. Details: $_"
+            return $null
+        }
+    }
+
+    # Main detection logic
+    $InstalledVersion = Get-FirefoxVersion
+
+    if (-not $InstalledVersion) {
+        Log-Message "No Firefox x64 installation detected. Exiting with status code 0."
+        Exit 0
+    }
+
+    try {
+        Log-Message "Comparing installed version: $InstalledVersion with minimum required version: $MinVersion."
+        if ([version]$InstalledVersion -lt [version]$MinVersion) {
+            Log-Message "Outdated version detected: $InstalledVersion is less than the required version $MinVersion."
+            Exit 1
+        } else {
+            Log-Message "Installed version $InstalledVersion meets the minimum requirement."
+            Exit 0
+        }
+    } catch {
+        Log-Message "Error: Unable to compare versions. Details: $_"
+        Exit 0
     }
 } catch {
-    Log-Message "Error: Unable to compare versions. Details: $_"
+    Log-Message "Unhandled error occurred: $_"
+    Log-Message "Exiting script with status code 0 to prevent Intune detection issues."
     Exit 0
-} 
+}
