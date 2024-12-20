@@ -1,4 +1,4 @@
- # Define log file path (overwrites each time)
+# Define log file path (overwrites each time)
 $LogDir = "C:\lab\logs"
 $LogFile = "$LogDir\winget_upgrade_all.log"
 
