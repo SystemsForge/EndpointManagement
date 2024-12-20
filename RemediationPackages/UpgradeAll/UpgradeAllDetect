@@ -1,5 +1,5 @@
  # Define log file path
-$LogFile = "C:\lab\Winget_Upgrade_detect.txt"
+$LogFile = "C:\lab\logs\Winget_Upgrade_detect.txt"
 
 # Log a message function
 function Log-Message {
@@ -19,7 +19,7 @@ $Winget = ((Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-
 # Log Winget path detection
 if (-not $Winget) {
     Log-Message "Winget executable not found. Exiting script."
-    echo 1
+    exit 1
 } else {
     Log-Message "Winget executable found at: $Winget"
 }
@@ -40,10 +40,10 @@ $UpgradeOutput | Out-File -Append -FilePath $LogFile
 # Evaluate output line count
 if (($UpgradeOutput -split "`n").Count -gt 3) {
     Log-Message "Upgrade(s) available. Exiting with code 1."
-    echo 1 # Upgrades available
+    exit 1 # Upgrades available
 } else {
     Log-Message "No upgrades available. Exiting with code 0."
-    echo 0 # No upgrades
+    exit 0 # No upgrades
 }
 
 # Completion log (won't reach here due to exit statements)
