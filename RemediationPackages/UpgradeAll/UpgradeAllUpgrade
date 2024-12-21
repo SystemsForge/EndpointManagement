@@ -1,6 +1,6 @@
 # Define log file path (overwrites each time)
 $LogDir = "C:\lab\logs"
-$LogFile = "$LogDir\winget_upgrade_all.log"
+$LogFile = "$LogDir\UpgradeAllUpgrade.log"
 
 # Ensure the log directory exists
 if (-not (Test-Path -Path $LogDir)) {
@@ -40,7 +40,7 @@ Log-Message "Updating Winget sources..."
 
 # Run the upgrade command
 Log-Message "Running upgrade all"
-& "$Winget" upgrade --all --silent --accept-source-agreements --accept-package-agreements 2>&1 | Out-File -Append -FilePath $LogFile
+& "$Winget" upgrade --all --silent --accept-source-agreements --accept-package-agreements --force 2>&1 | Out-File -Append -FilePath $LogFile
 
 # Completion log
 Log-Message "Script execution completed." 
