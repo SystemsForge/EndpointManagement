@@ -1,5 +1,5 @@
-# Define log file path
-$LogFile = "C:\lab\logs\Winget_Upgrade_detect.txt"
+ # Define log file path
+$LogFile = "C:\lab\logs\UpgradeAllDetect.txt"
 
 # Log a message function
 function Log-Message {
@@ -10,6 +10,9 @@ function Log-Message {
     $FullMessage = "$Timestamp - $Message"
     $FullMessage | Out-File -Append -FilePath $LogFile
 }
+
+# Start the script and log the initiation
+Log-Message "Script started."
 
 # Get path for Winget executable
 $Winget = ((Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Object { 
@@ -32,19 +35,21 @@ Log-Message "Retrieving Winget version information..."
 Log-Message "Updating Winget sources..."
 & "$Winget" source update 2>&1 | Out-File -Append -FilePath $LogFile
 
-# Check for upgrades
+# Check for available upgrades
 Log-Message "Checking for available upgrades..."
-$UpgradeOutput = & "$Winget" upgrade 2>&1 | Out-String
-$UpgradeOutput | Out-File -Append -FilePath $LogFile
-
-# Evaluate output line count
-if (($UpgradeOutput -split "`n").Count -gt 3) {
-    Log-Message "Upgrade(s) available. Exiting with code 1."
-    exit 1 # Upgrades available
-} else {
-    Log-Message "No upgrades available. Exiting with code 0."
-    exit 0 # No upgrades
+try {
+    $UpgradeOutput = & "$Winget" upgrade --accept-source-agreements 2>&1 | Out-String
+    $UpgradeOutput | Out-File -Append -FilePath $LogFile
+} catch {
+    Log-Message "An error occurred while running 'winget upgrade': $_"
+    exit 1
 }
 
-# Completion log (won't reach here due to exit statements)
-Log-Message "Script execution completed." 
+# Evaluate output line count
+if (($UpgradeOutput -split "\r?\n" | Where-Object { $_ -ne "" } | Measure-Object).Count -gt 3) {
+    Log-Message "Upgrade(s) available. Exiting with code 1."
+    exit 1
+} else {
+    Log-Message "No upgrades available. Exiting with code 0."
+    exit 0
+}
