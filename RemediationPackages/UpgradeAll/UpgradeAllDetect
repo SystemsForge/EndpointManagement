@@ -1,4 +1,4 @@
- # Define log file path
+# Define log file path
 $LogFile = "C:\lab\logs\UpgradeAllDetect.txt"
 
 # Log a message function
