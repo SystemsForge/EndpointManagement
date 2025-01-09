@@ -1,17 +1,17 @@
-# Define the application package ID to check
+ # Define the application package ID to check
 $packageID = "Microsoft.Teams"
 
 # Function to log output (optional, for debugging)
 function Log-Output {
     param([string]$message)
-    $logFile = "C:\ProgramData\teams_detection_log.txt"
+    $logFile = "C:\lab\logs\teams_detection_log.txt"
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     "$timestamp - $message" | Out-File -FilePath $logFile -Append
 }
 
 # Query winget for the specific package ID
 try {
-    $appFound = & winget list --id "$packageID" 2>&1 | Where-Object { $_ -match "$packageID" }
+    $appFound = & winget list --id "$packageID" --exact 2>&1 | Where-Object { $_ -match "$packageID" }
     if ($appFound) {
         Log-Output "$packageID is installed."
         exit 0  # Success
@@ -22,6 +22,6 @@ try {
     }
 }
 catch {
-    Log-Output "Error querying winget for $packageID. $_"
+    Log-Output "Error querying winget for $packageID."
     exit 1  # Failure
-}
+} 
