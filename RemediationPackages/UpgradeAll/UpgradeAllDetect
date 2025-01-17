@@ -41,15 +41,15 @@ try {
     $UpgradeOutput = & "$Winget" upgrade --accept-source-agreements 2>&1 | Out-String
     $UpgradeOutput | Out-File -Append -FilePath $LogFile
 } catch {
-    Log-Message "An error occurred while running 'winget upgrade': $_"
+    Log-Message "An error occurred while running 'winget upgrade'"
     exit 1
 }
 
-# Evaluate output line count
-if (($UpgradeOutput -split "\r?\n" | Where-Object { $_ -ne "" } | Measure-Object).Count -gt 3) {
-    Log-Message "Upgrade(s) available. Exiting with code 1."
-    exit 1
-} else {
+# Evaluate the output for the specific phrase
+if ($UpgradeOutput -match "No installed package found matching input criteria") {
     Log-Message "No upgrades available. Exiting with code 0."
     exit 0
+} else {
+    Log-Message "Upgrade(s) available or another condition encountered. Exiting with code 1."
+    exit 1
 }
